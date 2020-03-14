@@ -2,21 +2,25 @@
 // Created by user on 15.02.2020.
 //
 
-#ifndef UNTITLED2_HASHMAP_H
-#define UNTITLED2_HASHMAP_H
 
-#include <iostream>
 #include <vector>
 #include <map>
 #include <set>
 #include <list>
 #include <memory>
+#include <utility>
 
-template<class KeyType, class ValueType, class Hash = std::hash<KeyType> > class
+using std::pair;
+using std::list;
+
+template
+        <class KeyType, class ValueType, class Hash = std::hash<KeyType> > class
 HashMap {
-public:
-    using iterator = typename list < pair <const KeyType, ValueType > > :: iterator;
-    using const_iterator = typename list < pair < const KeyType, ValueType > > :: const_iterator;
+    public:
+    using iterator =
+            typename list < pair <const KeyType, ValueType > > :: iterator;
+    using const_iterator = typename list
+            < pair < const KeyType, ValueType > > :: const_iterator;
     const size_t size_default = 1000;
 
     iterator begin() noexcept;
@@ -29,7 +33,8 @@ public:
 
     HashMap(Hash hasher = Hash());
 
-    HashMap(initializer_list < pair < KeyType, ValueType > > inlist, Hash hasher = Hash());
+    HashMap(initializer_list < pair < KeyType, ValueType > >
+            inlist, Hash hasher = Hash());
 
     template<class TypeIterator>
     HashMap(TypeIterator start, TypeIterator finish, Hash hasher = Hash());
@@ -54,8 +59,8 @@ public:
 
     ValueType &operator[](const KeyType key);
 
-    HashMap &operator=(HashMap &mp);
-private:
+    HashMap &operator=(const HashMap &mp);
+    private:
     size_t size_tab;
     Hash hasher;
     list <pair<const KeyType, ValueType>> listnode;
@@ -73,12 +78,14 @@ private:
 };
 
 template<class KeyType, class ValueType, class Hash>
-HashMap::iterator HashMap<KeyType, ValueType, Hash>::begin() noexcept {
+HashMap::iterator HashMap<KeyType, ValueType, Hash>::
+        begin() noexcept {
     return listnode.begin();
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::begin() const noexcept {
+HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::
+        begin() const noexcept {
     return listnode.begin();
 }
 
@@ -88,15 +95,19 @@ HashMap::iterator HashMap<KeyType, ValueType, Hash>::end() noexcept {
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::end() const noexcept {
+HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::
+        end() const noexcept {
     return listnode.end();
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap<KeyType, ValueType, Hash>::HashMap(Hash hasher) : size_tab(size_default), hasher(hasher), tab(size_default) {}
+    HashMap<KeyType, ValueType, Hash>::HashMap(Hash hasher):
+    size_tab(size_default), hasher(hasher), tab(size_default) {}
 
 template<class KeyType, class ValueType, class Hash>
-HashMap<KeyType, ValueType, Hash>::HashMap(initializer_list<pair<KeyType, ValueType>> inlist, Hash hasher): HashMap() {
+HashMap<KeyType, ValueType, Hash>::
+    HashMap(initializer_list<pair<KeyType, ValueType>> inlist, Hash hasher):
+    HashMap() {
     for (auto&& i : inlist) {
         insert(i);
     }
@@ -105,7 +116,9 @@ HashMap<KeyType, ValueType, Hash>::HashMap(initializer_list<pair<KeyType, ValueT
 template<class KeyType, class ValueType, class Hash>
 
 template<class TypeIterator>
-HashMap<KeyType, ValueType, Hash>::HashMap(TypeIterator start, TypeIterator finish, Hash hasher): HashMap() {
+HashMap<KeyType, ValueType, Hash>::
+        HashMap(TypeIterator start, TypeIterator finish, Hash hasher):
+        HashMap() {
     for (auto&& i = start; i != finish; ++i) {
         insert(*i);
     }
@@ -127,7 +140,8 @@ const Hash HashMap<KeyType, ValueType, Hash>::hash_function() const {
 }
 
 template<class KeyType, class ValueType, class Hash>
-void HashMap<KeyType, ValueType, Hash>::insert(pair<const KeyType, ValueType> ins_pair) {
+void HashMap<KeyType, ValueType, Hash>::
+        insert(pair<const KeyType, ValueType> ins_pair) {
     KeyType key = ins_pair.first;
     if (find(key) != listnode.end()) {
         return;
@@ -166,7 +180,8 @@ void HashMap<KeyType, ValueType, Hash>::clear() {
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap::iterator HashMap<KeyType, ValueType, Hash>::find(KeyType key) noexcept {
+HashMap::iterator HashMap<KeyType, ValueType, Hash>::
+        find(KeyType key) noexcept {
     size_t hash = hasher(key) % size_tab;
     for (auto&& j : tab[hash]) {
         if (key == j->first)
@@ -176,7 +191,8 @@ HashMap::iterator HashMap<KeyType, ValueType, Hash>::find(KeyType key) noexcept 
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::find(KeyType key) const noexcept {
+HashMap::const_iterator HashMap<KeyType, ValueType, Hash>::
+        find(KeyType key) const noexcept {
     size_t hash = hasher(key) % size_tab;
     for (auto&& j : tab[hash]) {
         if (key == j->first)
@@ -202,7 +218,7 @@ ValueType &HashMap<KeyType, ValueType, Hash>::operator[](const KeyType key) {
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap &HashMap<KeyType, ValueType, Hash>::operator=(HashMap &mp) {
+HashMap &HashMap<KeyType, ValueType, Hash>::operator=(const HashMap &mp) {
     if (this == &mp) {
         return *this;
     }
@@ -212,5 +228,3 @@ HashMap &HashMap<KeyType, ValueType, Hash>::operator=(HashMap &mp) {
     }
     return *this;
 }
-
-#endif //UNTITLED2_HASHMAP_H
