@@ -1,9 +1,4 @@
-//
-// Created by user on 15.02.2020.
-//
-
-#ifndef UNTITLED2_HASHMAP_H
-#define UNTITLED2_HASHMAP_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -221,5 +216,3 @@ void HashMap<KeyType, ValueType, Hash>::rebuild() {
     }
     table_size_ *= 2;
 }
-
-#endif  // UNTITLED2_HASHMAP_H
