@@ -1,8 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <map>
-#include <set>
 #include <list>
 #include <memory>
 #include <utility>
@@ -22,14 +20,14 @@ class HashMap {
 
     const_iterator end() const;
 
-    HashMap(Hash hasher = Hash()) : table_size_(defaultSize_), hasher(hasher),
-    table_(defaultSize_) {}
+    HashMap(Hash hasher_ = Hash())
+        : table_size_(defaultSize_), hasher_(hasher_), table_(defaultSize_) {}
 
     HashMap(std::initializer_list<std::pair<KeyType, ValueType>> inlist,
-            Hash hasher = Hash());
+            Hash hasher_ = Hash());
 
     template<class TypeIterator>
-    HashMap(TypeIterator start, TypeIterator finish, Hash hasher = Hash());
+    HashMap(TypeIterator start, TypeIterator finish, Hash hasher_ = Hash());
 
     size_t size() const;
 
@@ -37,7 +35,7 @@ class HashMap {
 
     const Hash hash_function() const;
 
-    void insert(KeyValuePair key_value_pair);
+    void insert(const KeyValuePair& key_value_pair);
 
     void erase(const KeyType& key);
 
@@ -56,9 +54,9 @@ class HashMap {
   private:
     const size_t defaultSize_ = 1000;
     size_t table_size_;
-    Hash hasher;
+    Hash hasher_;
     std::list <KeyValuePair> elements_;
-    std::vector <std::list <iterator>> table_;
+    std::vector <std::list<iterator>> table_;
     void rebuild();
 };
 
@@ -95,7 +93,7 @@ bool HashMap<KeyType, ValueType, Hash>::empty() const {
 template<class KeyType, class ValueType, class Hash>
 template<class TypeIterator>
 HashMap<KeyType, ValueType, Hash>::HashMap(TypeIterator start,
-        TypeIterator finish, Hash hasher): HashMap() {
+        TypeIterator finish, Hash hasher_) : HashMap() {
     for (auto&& i = start; i != finish; ++i) {
         insert(*i);
     }
@@ -103,7 +101,7 @@ HashMap<KeyType, ValueType, Hash>::HashMap(TypeIterator start,
 
 template<class KeyType, class ValueType, class Hash>
 HashMap<KeyType, ValueType, Hash>::HashMap(std::initializer_list
-        <std::pair<KeyType, ValueType>> inlist, Hash hasher): HashMap() {
+        <std::pair<KeyType, ValueType>> inlist, Hash hasher_) : HashMap() {
     for (auto&& key_value_pair : inlist) {
         insert(key_value_pair);
     }
@@ -111,16 +109,16 @@ HashMap<KeyType, ValueType, Hash>::HashMap(std::initializer_list
 
 template<class KeyType, class ValueType, class Hash>
 const Hash HashMap<KeyType, ValueType, Hash>::hash_function() const {
-    return hasher;
+    return hasher_;
 }
 
 template<class KeyType, class ValueType, class Hash>
-void HashMap<KeyType, ValueType, Hash>::insert(HashMap::KeyValuePair key_value_pair) {
+void HashMap<KeyType, ValueType, Hash>::insert(const KeyValuePair& key_value_pair) {
     KeyType key = key_value_pair.first;
     if (find(key) != elements_.end()) {
         return;
     }
-    size_t new_hash = hasher(key) % table_size_;
+    size_t new_hash = hasher_(key) % table_size_;
     elements_.push_back(key_value_pair);
     iterator new_it = prev(elements_.end());
     table_[new_hash].push_back(new_it);
@@ -131,7 +129,7 @@ void HashMap<KeyType, ValueType, Hash>::insert(HashMap::KeyValuePair key_value_p
 
 template<class KeyType, class ValueType, class Hash>
 void HashMap<KeyType, ValueType, Hash>::erase(const KeyType& key) {
-    size_t hash = hasher(key) % table_size_;
+    size_t hash = hasher_(key) % table_size_;
     if (find(key) != elements_.end()) {
         auto it = table_[hash].begin();
         for (auto&& j : table_[hash]) {
@@ -155,7 +153,7 @@ void HashMap<KeyType, ValueType, Hash>::clear() {
 
 template<class KeyType, class ValueType, class Hash>
 auto HashMap<KeyType, ValueType, Hash>::find(const KeyType& key) -> iterator {
-    size_t hash = hasher(key) % table_size_;
+    size_t hash = hasher_(key) % table_size_;
     for (auto&& j : table_[hash]) {
         if (key == j->first) {
             return j;
@@ -165,19 +163,20 @@ auto HashMap<KeyType, ValueType, Hash>::find(const KeyType& key) -> iterator {
 }
 
 template<class KeyType, class ValueType, class Hash>
-auto HashMap<KeyType, ValueType, Hash>
-        ::find(const KeyType& key) const -> const_iterator {
-    size_t hash = hasher(key) % table_size_;
-    for (auto&& j : table_[hash]) {
-        if (key == j->first)
-            return j;
+auto HashMap<KeyType, ValueType, Hash>::find(
+        const KeyType& key) const -> const_iterator {
+    size_t hash = hasher_(key) % table_size_;
+    for (auto&& it : table_[hash]) {
+        if (key == it->first) {
+            return it;
+        }
     }
     return elements_.end();
 }
 
 template<class KeyType, class ValueType, class Hash>
-const ValueType &HashMap<KeyType, ValueType, Hash>
-        ::at(const KeyType key) const {
+const ValueType &HashMap<KeyType, ValueType, Hash>::at(
+        const KeyType key) const {
     auto it = find(key);
     if (it == elements_.end()) {
         throw std::out_of_range("");
@@ -187,15 +186,15 @@ const ValueType &HashMap<KeyType, ValueType, Hash>
 
 template<class KeyType, class ValueType, class Hash>
 ValueType &HashMap<KeyType, ValueType, Hash>::operator[](const KeyType key) {
-    if (find(key) == elements_.end()) {
+    if (find(key) == elements_.end()) {  // у меня происходит insert и поэтому мне нужно два раза find использовать
         insert(std::pair<KeyType, ValueType> (key, {}));
     }
     return find(key)->second;
 }
 
 template<class KeyType, class ValueType, class Hash>
-HashMap<KeyType, ValueType, Hash> &HashMap<KeyType, ValueType, Hash>
-        ::operator=(HashMap const &other) {
+HashMap<KeyType, ValueType, Hash> &HashMap<KeyType, ValueType, Hash>::operator=(
+        HashMap const &other) {
     if (this == &other) {
         return *this;
     }
@@ -211,7 +210,7 @@ void HashMap<KeyType, ValueType, Hash>::rebuild() {
     table_.clear();
     table_.resize(table_size_ * 2);
     for (iterator it = elements_.begin(); it != elements_.end(); ++it) {
-        size_t hash = hasher(it->first) % (table_size_ * 2);
+        size_t hash = hasher_(it->first) % (table_size_ * 2);
         table_[hash].push_back(it);
     }
     table_size_ *= 2;
