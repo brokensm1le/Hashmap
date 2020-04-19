@@ -9,8 +9,8 @@ template<class KeyType, class ValueType, class Hash = std::hash<KeyType>>
 class HashMap {
   public:
     using KeyValuePair = std::pair<const KeyType, ValueType>;
-    using iterator = typename std::list <KeyValuePair>::iterator;
-    using const_iterator = typename std::list <KeyValuePair>::const_iterator;
+    using iterator = typename std::list<KeyValuePair>::iterator;
+    using const_iterator = typename std::list<KeyValuePair>::const_iterator;
 
     iterator begin();
 
@@ -45,9 +45,9 @@ class HashMap {
 
     const_iterator find(const KeyType& key) const;
 
-    const ValueType& at(const KeyType key) const;
+    const ValueType& at(const KeyType& key) const;
 
-    ValueType &operator[](const KeyType key);
+    ValueType &operator[](const KeyType& key);
 
     HashMap &operator= (HashMap const &other);
 
@@ -55,8 +55,10 @@ class HashMap {
     const size_t defaultSize_ = 1000;
     size_t table_size_;
     Hash hasher_;
-    std::list <KeyValuePair> elements_;
-    std::vector <std::list<iterator>> table_;
+    std::list<KeyValuePair> elements_;
+    std::vector<std::list<iterator>> table_;
+    static const int rebuild_const = 0.75;
+    
     void rebuild();
 };
 
@@ -122,7 +124,7 @@ void HashMap<KeyType, ValueType, Hash>::insert(const KeyValuePair& key_value_pai
     elements_.push_back(key_value_pair);
     iterator new_it = prev(elements_.end());
     table_[new_hash].push_back(new_it);
-    if (table_[new_hash].size() > table_size_ / defaultSize_) {
+    if (table_[new_hash].size() / table_size_ > rebuild_const) {
         rebuild();
     }
 }
@@ -176,7 +178,7 @@ auto HashMap<KeyType, ValueType, Hash>::find(
 
 template<class KeyType, class ValueType, class Hash>
 const ValueType &HashMap<KeyType, ValueType, Hash>::at(
-        const KeyType key) const {
+        const KeyType& key) const {
     auto it = find(key);
     if (it == elements_.end()) {
         throw std::out_of_range("");
@@ -185,11 +187,14 @@ const ValueType &HashMap<KeyType, ValueType, Hash>::at(
 }
 
 template<class KeyType, class ValueType, class Hash>
-ValueType &HashMap<KeyType, ValueType, Hash>::operator[](const KeyType key) {
-    if (find(key) == elements_.end()) {  // у меня происходит insert и поэтому мне нужно два раза find использовать
+ValueType &HashMap<KeyType, ValueType, Hash>::operator[](const KeyType& key) {
+    auto it = find(key);
+    if (it == elements_.end()) {
         insert(std::pair<KeyType, ValueType> (key, {}));
+        return find(key)->second;
+    } else {
+        return it->second;
     }
-    return find(key)->second;
 }
 
 template<class KeyType, class ValueType, class Hash>
