@@ -124,7 +124,7 @@ void HashMap<KeyType, ValueType, Hash>::insert(const KeyValuePair& key_value_pai
     elements_.push_back(key_value_pair);
     iterator new_it = prev(elements_.end());
     table_[new_hash].push_back(new_it);
-    if (table_[new_hash].size() > table_size_ / defaultSize_) {
+    if (table_[new_hash].size() / table_size_ > rebuild_const) {
         rebuild();
     }
 }
