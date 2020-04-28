@@ -57,7 +57,7 @@ class HashMap {
     Hash hasher_;
     std::list<KeyValuePair> elements_;
     std::vector<std::list<iterator>> table_;
-    const double rebuild_const = 0.75;
+    const double rebuildСonst_ = 0.75;
 
     void rebuild();
 };
@@ -125,7 +125,7 @@ void HashMap<KeyType, ValueType,
     elements_.push_back(key_value_pair);
     iterator new_it = prev(elements_.end());
     table_[new_hash].push_back(new_it);
-    if (static_cast<double>(elements_.size() / table_size_) > rebuild_const) {
+    if (static_cast<double>(elements_.size() / table_size_) > rebuildСonst_) {
         rebuild();
     }
 }
