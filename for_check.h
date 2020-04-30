@@ -125,7 +125,7 @@ void HashMap<KeyType, ValueType,
     elements_.push_back(key_value_pair);
     iterator new_it = prev(elements_.end());
     table_[new_hash].push_back(new_it);
-    if (static_cast<double>(elements_.size() / table_size_) > rebuildСonst_) {
+    if (elements_.size() / (1.0 * table_size_) > rebuildСonst_) {
         rebuild();
     }
 }
