@@ -22,7 +22,7 @@ class HashMap {
 
     HashMap(Hash hasher = Hash()): table_size_(defaultSize_),
                                     elements_count_(0), hasher_(hasher),
-                                    table_(defaultSize_) {}д
+                                    table_(defaultSize_) {}
 
     HashMap(std::initializer_list<std::pair<KeyType, ValueType>> inlist,
             Hash hasher_ = Hash());
